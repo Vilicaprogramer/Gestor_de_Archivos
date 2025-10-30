@@ -52,19 +52,26 @@ def listar_contenido():
         if os.path.isfile(i):
             print(Fore.BLUE + 'Archivo' + Fore.GREEN +  ' -> ' + Fore.CYAN + i)
         else:
-            print(Fore.BLUE + 'Fichero' + Fore.GREEN +  ' -> ' + Fore.MAGENTA + i)
+            print(Fore.BLUE + 'Directorio' + Fore.GREEN +  ' -> ' + Fore.MAGENTA + i)
 
 def crear_directorio():
     # Crea una nueva carpeta
-    dic_name = input("¿Que nombre le quires poner a tu directorio?\n")
-    os.mkdir(dic_name)
-    print(Back.GREEN + f'El directorio {dic_name} se ha creado con éxito en la ruta {os.getcwd()}\{dic_name}')
-
+    try:
+        dic_name = input("¿Que nombre le quires poner a tu directorio?\n")
+        os.mkdir(dic_name)
+        print(Fore.GREEN + f'El directorio {dic_name} se ha creado con éxito en la ruta {os.getcwd()}\{dic_name}')
+    except FileExistsError as e:
+        print(Back.RED + str(e))
+        
 def crear_archivo():
     # Crea un archivo de texto y permite escribir en él
+    directorio_actual = os.getcwd()
     arch_name = input("¿Que tipo de archivo quieres crear?\n")
-    open(f'{arch_name}.txt', 'w')
-    print(Back.GREEN + f'El archivo {arch_name}.txt se ha creado con éxito en la ruta {os.getcwd()}\{arch_name}.txt')
+    if f'{arch_name}.txt' not in os.listdir(directorio_actual):
+        open(f'{arch_name}.txt', 'w')
+        print(Fore.GREEN + f'El archivo {arch_name}.txt se ha creado con éxito en la ruta {os.getcwd()}\{arch_name}.txt')
+    else:
+        print(Back.RED + f'El archivo {arch_name}.txt ya existe')
 
 def escribir_en_archivo():
     # Abre un archivo existente y añade texto al final
@@ -76,7 +83,7 @@ def escribir_en_archivo():
             file.writelines(texto)
             print(Fore.GREEN + f'El archivo {arch_name} ha sido actualizado correctamente')
     else:
-        print(Fore.RED + f'El archivo {arch_name} no está dentro de los archivos de este directorio.')
+        print(Back.RED + f'El archivo {arch_name} no está dentro de los archivos de este directorio.')
 
 
 def eliminar_elemento():
@@ -87,7 +94,7 @@ def eliminar_elemento():
     def force_remove(func, path, _):
         """
         Si un archivo o carpeta no puede eliminarse por permisos (solo lectura, etc.),
-        cambia sus permisos y reintenta.
+        cambiamos sus permisos y reintenta.
         """
         os.chmod(path, stat.S_IWRITE)
         func(path)
@@ -101,9 +108,9 @@ def eliminar_elemento():
                 shutil.rmtree(arch_dicect, onerror=force_remove)
                 print(Fore.GREEN + f'El directorio "{arch_dicect}" y su contenido han sido eliminados correctamente.')
             except PermissionError:
-                print(Fore.RED + f'No tienes permisos para eliminar "{arch_dicect}". Ejecuta el programa como administrador.')
+                print(Back.RED + f'No tienes permisos para eliminar "{arch_dicect}". Ejecuta el programa como administrador.')
             except Exception as e:
-                print(Fore.RED + f'Error al eliminar el directorio: {e}')
+                print(Back.RED + f'Error al eliminar el directorio: {e}')
         else:
             print(Back.RED + f'"{arch_dicect}" no es ni un archivo ni un directorio reconocido.')
     else:
